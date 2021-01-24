@@ -81,4 +81,23 @@ public class QuestionController {
     }
 
 
+    //Controller method for Delete Question
+    @RequestMapping(method = RequestMethod.DELETE, path = "/question/delete/{questionId}")
+    public ResponseEntity<QuestionDeleteResponse> deleteQuestion(@RequestHeader("authorization") final String accessToken,
+        @PathVariable("questionId") final String questionId)throws AuthorizationFailedException, InvalidQuestionException {
+
+        QuestionEntity questionEntity = questionService.deleteQuestion(accessToken, questionId);
+
+        QuestionDeleteResponse questionDeleteResponse = new QuestionDeleteResponse();
+
+        //Setting UUID for deletion
+        questionDeleteResponse.setId(questionEntity.getUuid());
+
+        //Status Update
+        questionDeleteResponse.setStatus("QUESTION DELETED");
+
+        return new ResponseEntity<QuestionDeleteResponse>(questionDeleteResponse, HttpStatus.OK);
+    }
+
+
 }
