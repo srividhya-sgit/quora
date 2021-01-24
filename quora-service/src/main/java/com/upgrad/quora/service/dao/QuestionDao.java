@@ -57,6 +57,11 @@ public class QuestionDao {
         entityManager.remove(questionEntity);
     }
 
+    // getAllQuestionsByUser method implemented./
+    public <UserEntity> List<QuestionEntity> getAllQuestionsByUser(final UserEntity userId) {
+        return entityManager.createNamedQuery("getAllQuestionByUser", QuestionEntity.class)
+                .setParameter("user", userId).getResultList();
+    }
 
 
 
