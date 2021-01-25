@@ -12,10 +12,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommonUserService {
     @Autowired
-    UserAuthDao userAuthDao;
+    private UserAuthDao userAuthDao;
     @Autowired
-    UserDao userDao;
-    public void checkToken(String accessToken) throws AuthorizationFailedException{
+    private UserDao userDao;
+
+    public UserAuthEntity authorizeUser(final String authorization) throws AuthorizationFailedException{
+
+        UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(authorization);
+
+        if (userAuthEntity ==null){
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        if(userAuthEntity.getLogoutAt()!=null){
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
+        }
+        else {
+            return userAuthEntity;
+        }
+    }
+
+/*    public void checkToken(String accessToken) throws AuthorizationFailedException{
         UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(accessToken);
         if (userAuthEntity ==null){
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
@@ -24,6 +40,8 @@ public class CommonUserService {
             throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
         }
     }
+
+ */
     public UserEntity getUserById(final String userId) throws UserNotFoundException {
         UserEntity userEntity = userDao.getUserById(userId);
         if (userEntity == null) {
