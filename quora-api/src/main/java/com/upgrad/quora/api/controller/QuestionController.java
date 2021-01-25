@@ -103,7 +103,7 @@ public class QuestionController {
     // Controller method for GetQuestionByUserID
     @RequestMapping(method = RequestMethod.GET,path = "question/all/{userId}",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<QuestionDetailsResponse>> getQuestionByUserId(@RequestHeader("authorization") final String accessToken,
-                                                                             @PathVariable("userId") String userId)throws AuthorizationFailedException, UserNotFoundException {
+         @PathVariable("userId") String userId)throws AuthorizationFailedException, UserNotFoundException {
 
         //Getting List of all questions
         List<QuestionEntity> questions = questionService.getAllQuestionsByUser(userId, accessToken);
@@ -116,8 +116,7 @@ public class QuestionController {
             questionDetailResponse.setContent(questionEntity.getContent());
             questionDetailResponses.add(questionDetailResponse);
         }
-        return new ResponseEntity<List<QuestionDetailsResponse>>(
-                questionDetailResponses, HttpStatus.OK);
+        return new ResponseEntity<List<QuestionDetailsResponse>>(questionDetailResponses, HttpStatus.OK);
     }
 
 
