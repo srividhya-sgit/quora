@@ -1416,12 +1416,12 @@ false posixrules
     <database id="3" parent="1" name="quora">
       <ObjectId>16585</ObjectId>
       <Owner>postgres</Owner>
-      <IntrospectionStateNumber>795</IntrospectionStateNumber>
+      <IntrospectionStateNumber>823</IntrospectionStateNumber>
       <Current>1</Current>
-      <Relations>sequence|table|16719|16721|1
-sequence|table|16734|16736|1
-sequence|table|16751|16753|1
-sequence|table|16767|16769|1
+      <Relations>sequence|table|16786|16788|1
+sequence|table|16801|16803|1
+sequence|table|16818|16820|1
+sequence|table|16834|16836|1
 </Relations>
     </database>
     <role id="4" parent="1" name="postgres">

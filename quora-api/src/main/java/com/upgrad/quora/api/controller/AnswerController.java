@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,7 +34,7 @@ public class AnswerController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@RequestHeader("authorization") final String authorization,
-                                                       @PathVariable("questionId") final String questionId, final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
+         @PathVariable("questionId") final String questionId, final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
         final UserAuthEntity userAuthEntity = userAuthenticationService.getUser(authorization);
         QuestionEntity questionEntity = questionService.validateQuestion(questionId);
 
@@ -80,5 +82,23 @@ public class AnswerController {
         AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(deleteAnswer.getUuid()).status("ANSWER DELETED");
 
         return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse,HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "answe/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@RequestHeader("authorization") final String authorization,
+                                                                               @PathVariable("questionId") final String questionId)throws AuthorizationFailedException, InvalidQuestionException {
+        UserAuthEntity userAuthEntity = userAuthenticationService.getUser(authorization);
+        QuestionEntity questionEntity = questionService.validateQuestion(questionId);
+
+        ArrayList<AnswerDetailsResponse> list = null;
+        ArrayList<AnswerEntity> rawlist = (ArrayList<AnswerEntity>) answerService.getAllAnswersToQuestion(questionId, userAuthEntity);
+        for(AnswerEntity ans : rawlist) {
+            AnswerDetailsResponse detailsResponse = new AnswerDetailsResponse();
+            detailsResponse.setId(ans.getUuid());
+            detailsResponse.setAnswerContent(ans.getAnswer());
+            detailsResponse.setQuestionContent(questionEntity.getContent());
+            list.add(detailsResponse);
+        }
+        return new ResponseEntity<List<AnswerDetailsResponse>>(list, HttpStatus.OK);
     }
 }
