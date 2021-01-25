@@ -7,6 +7,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
+//Dao class used for database work
 @Repository
 public class AnswerDao {
 
@@ -16,7 +17,7 @@ public class AnswerDao {
         entityManager.persist(answerEntity);
         return answerEntity;
     }
-
+    //It will fetch the answer
     public AnswerEntity getAnswerById(final String answerId) {
         try {
             return entityManager.createNamedQuery("getAnswerById", AnswerEntity.class).setParameter("uuid", answerId).getSingleResult();
@@ -24,11 +25,11 @@ public class AnswerDao {
             return null;
         }
     }
-
+    //it will update the answer
     public void updateAnswer(AnswerEntity answerEntity) {
         entityManager.merge(answerEntity);
     }
-
+    //method used for delete ans from database
     public AnswerEntity deleteAnswer(final String answerId) {
         AnswerEntity deleteAnswer = getAnswerById(answerId);
         if (deleteAnswer != null) {
@@ -37,7 +38,7 @@ public class AnswerDao {
         return deleteAnswer;
     }
 
-    // fetch all the answers to the question using questionId
+    // method used for getting all answer for a specific question from database.
     public List<AnswerEntity> getAllAnswersToQuestion(final String questionId) {
         return entityManager.createNamedQuery("getAllAnswersToQuestion", AnswerEntity.class).setParameter("uuid", questionId).getResultList();
     }

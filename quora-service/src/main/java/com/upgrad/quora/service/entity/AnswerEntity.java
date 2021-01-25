@@ -11,7 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
-
+//POJO class for answer table
 @Entity
 @Table(name = "answer")
 @NamedQueries({@NamedQuery(name = "getAnswerById", query = "select a from AnswerEntity a where a.uuid=:uuid"),

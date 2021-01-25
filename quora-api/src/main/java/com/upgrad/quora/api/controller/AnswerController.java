@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//Controller class for answer related operations
 @RestController
 @RequestMapping("/")
 public class AnswerController {
 
     @Autowired private AnswerService answerService;
-
+    //endpoint method for creating an answer for a question
     @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@RequestHeader("authorization") final String accessToken,
                                                        @PathVariable("questionId") final String questionId, AnswerRequest answerRequest)throws AuthorizationFailedException, InvalidQuestionException {
@@ -32,7 +32,7 @@ public class AnswerController {
         answerResponse.setStatus("ANSWER CREATED");
         return new ResponseEntity<AnswerResponse>(answerResponse, HttpStatus.CREATED);
     }
-
+    //endpoint method for editing an answer for a question
     @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerEditResponse> editAnswer(@RequestHeader("authorization") final String accessToken, @PathVariable("answerId") final String answerId, AnswerEditRequest answerEditRequest)throws AuthorizationFailedException, AnswerNotFoundException {
         AnswerEditResponse answerEditResponse = new AnswerEditResponse();
@@ -41,14 +41,14 @@ public class AnswerController {
         answerEditResponse.setStatus("ANSWER EDITED");
         return new ResponseEntity<AnswerEditResponse>(answerEditResponse, HttpStatus.OK);
     }
-
+    //endpoint method for deleting an answer
     @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@RequestHeader("authorization") final String accessToken, @PathVariable("answerId") String answerId)throws AuthorizationFailedException, AnswerNotFoundException {
         AnswerEntity answerEntity = answerService.deleteAnswer(answerId, accessToken);
         AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(answerEntity.getUuid()).status("ANSWER DELETED");
         return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse, HttpStatus.OK);
     }
-
+    //endpoint method for get all answer for a question
     @RequestMapping(method = RequestMethod.GET, path = "/answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@RequestHeader("authorization") final String accessToken, @PathVariable("questionId") String questionId) throws AuthorizationFailedException, InvalidQuestionException {
         List<AnswerEntity> answers = answerService.getAllAnswersToQuestion(questionId, accessToken);
