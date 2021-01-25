@@ -43,4 +43,22 @@ public class AnswerDao {
         return entityManager.merge(answerEntity);
     }
 
+    public AnswerEntity verifyAnsUserToDelete(String duuid, String deuuid)
+    {
+
+        try {
+            return entityManager.createNamedQuery("verifyAnsUserToDelete", AnswerEntity.class).setParameter("duuid", duuid).setParameter("deuuid",deuuid).getSingleResult();
+        }catch (NoResultException nre)
+        {
+            return null;
+        }
+    }
+
+    public AnswerEntity deleteAnswer(AnswerEntity answerEntity)
+    {
+        entityManager.remove(answerEntity);
+        return answerEntity;
+    }
+
+
 }

@@ -56,5 +56,27 @@ public class AnswerService {
         AnswerEntity newAns = answerDao.newAns(answerEntity);
         return newAns;
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity verifyAnsUserToDelete(UserAuthEntity userAuthEntityd, AnswerEntity answerEntity)throws AuthorizationFailedException {
+        UserEntity userEntityd = userAuthEntityd.getUserEntity();
+        if (userAuthEntityd.getLogoutAt()!= null) {
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to delete an answer");
+        }
+        String duuid = answerEntity.getUuid();
+        String deuuid = userEntityd.getUuid();
+        AnswerEntity verifiedAnsDelete = answerDao.verifyAnsUserToEdit(duuid, deuuid);
+        if (verifiedAnsDelete == null) {
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
+        }
+        return verifiedAnsDelete;
+    }
+
+    //To delete answer
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity deleteAnswer(AnswerEntity answerEntity) {
+        AnswerEntity deleteAnswer = answerDao.deleteAnswer(answerEntity);
+        return deleteAnswer;
+    }
 }
 
