@@ -5,6 +5,7 @@ import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthenticationFailedException;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.SignOutRestrictedException;
 import com.upgrad.quora.service.exception.SignUpRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,5 +95,15 @@ public class UserAuthenticationService {
     // checks whether the email exist in the database
     private boolean isEmailInUse(final String email) {
         return userDao.getUserByEmail(email) != null;
+    }
+
+    @Transactional
+    public UserAuthEntity getUser(final String authorizationToken) throws AuthorizationFailedException {
+
+      UserAuthEntity userAuthEntity = userAuthDao.getUserAuthByToken(authorizationToken);
+        if (userAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        return userAuthEntity;
     }
 }
