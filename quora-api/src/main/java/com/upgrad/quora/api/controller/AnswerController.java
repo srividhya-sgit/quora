@@ -2,12 +2,7 @@ package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.*;
 import com.upgrad.quora.service.business.AnswerService;
-import com.upgrad.quora.service.business.QuestionService;
-import com.upgrad.quora.service.business.UserAuthenticationService;
 import com.upgrad.quora.service.entity.AnswerEntity;
-import com.upgrad.quora.service.entity.QuestionEntity;
-import com.upgrad.quora.service.entity.UserAuthEntity;
-import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
@@ -17,88 +12,54 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/")
 public class AnswerController {
-    @Autowired
-    private AnswerService answerService;
-    @Autowired
-    private UserAuthenticationService userAuthenticationService;
-    @Autowired
-    private QuestionService questionService;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<AnswerResponse> createAnswer(@RequestHeader("authorization") final String authorization,
-         @PathVariable("questionId") final String questionId, final AnswerRequest answerRequest) throws AuthorizationFailedException, InvalidQuestionException {
-        final UserAuthEntity userAuthEntity = userAuthenticationService.getUser(authorization);
-        QuestionEntity questionEntity = questionService.validateQuestion(questionId);
+    @Autowired private AnswerService answerService;
 
-        UserEntity userEntity = userAuthEntity.getUserEntity();
+    @RequestMapping(method = RequestMethod.POST, path = "/question/{questionId}/answer/create", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerResponse> createAnswer(@RequestHeader("authorization") final String accessToken,
+                                                       @PathVariable("questionId") final String questionId, AnswerRequest answerRequest)throws AuthorizationFailedException, InvalidQuestionException {
         AnswerEntity answerEntity = new AnswerEntity();
-        answerEntity.setUuid(UUID.randomUUID().toString());
-        answerEntity.setDate(ZonedDateTime.now());
-        answerEntity.setQuestion(questionEntity);
         answerEntity.setAnswer(answerRequest.getAnswer());
-        answerEntity.setUser(userEntity);
-
-        AnswerEntity createdAnswer = answerService.createAnswer(answerEntity, userAuthEntity);
-        AnswerResponse answerResponse = new AnswerResponse().id(createdAnswer.getUuid()).status("ANSWER CREATED");
-
-        return new ResponseEntity<AnswerResponse>(answerResponse, HttpStatus.OK);
+        answerEntity = answerService.createAnswer(answerEntity, accessToken, questionId);
+        AnswerResponse answerResponse = new AnswerResponse();
+        answerResponse.setId(answerEntity.getUuid());
+        answerResponse.setStatus("ANSWER CREATED");
+        return new ResponseEntity<AnswerResponse>(answerResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<AnswerEditResponse> editAnswer(@RequestHeader("authorization") final String authorization,
-                                                         @PathVariable("answerId") final String answerId,
-                                                         final AnswerEditRequest answerEditRequest)throws AuthorizationFailedException, AnswerNotFoundException {
-        UserAuthEntity userAuthEntity = userAuthenticationService.getUser(authorization);
-        AnswerEntity answerEntity = answerService.getAnswerFromId(answerId);
-        AnswerEntity verifiedAnsEdit = answerService.verifyAnsUserToEdit(userAuthEntity, answerEntity);
-        verifiedAnsEdit.setAnswer(answerEditRequest.getContent());
-        AnswerEntity newAns = answerService.newAns(verifiedAnsEdit);
-        AnswerEditResponse answerEditResponse = new AnswerEditResponse().id(newAns.getUuid()).status("ANSWER EDITED");
-
+    @RequestMapping(method = RequestMethod.PUT, path = "/answer/edit/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerEditResponse> editAnswer(@RequestHeader("authorization") final String accessToken, @PathVariable("answerId") final String answerId, AnswerEditRequest answerEditRequest)throws AuthorizationFailedException, AnswerNotFoundException {
+        AnswerEditResponse answerEditResponse = new AnswerEditResponse();
+        AnswerEntity answerEntity = answerService.editAnswer(accessToken, answerId, answerEditRequest.getContent());
+        answerEditResponse.setId(answerEntity.getUuid());
+        answerEditResponse.setStatus("ANSWER EDITED");
         return new ResponseEntity<AnswerEditResponse>(answerEditResponse, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "/answer/delete/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@RequestHeader("authorization") final String authorization,
-                                                             @PathVariable("answerId") final String answerId)throws AuthorizationFailedException, AnswerNotFoundException {
-        UserAuthEntity userAuthEntity = userAuthenticationService.getUser(authorization);
-        UserEntity userEntity = userAuthEntity.getUserEntity();
-        AnswerEntity answerEntity = answerService.getAnswerFromId(answerId);
-        AnswerEntity verifiedAnsDelete;
-        if (userEntity.getRole().equalsIgnoreCase("admin")) {
-            verifiedAnsDelete = answerEntity;
-        } else {
-            verifiedAnsDelete = answerService.verifyAnsUserToDelete(userAuthEntity, answerEntity);
-        }
-        AnswerEntity deleteAnswer = answerService.deleteAnswer(verifiedAnsDelete);
-        AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(deleteAnswer.getUuid()).status("ANSWER DELETED");
-
-        return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse,HttpStatus.OK);
+    public ResponseEntity<AnswerDeleteResponse> deleteAnswer(@RequestHeader("authorization") final String accessToken, @PathVariable("answerId") String answerId)throws AuthorizationFailedException, AnswerNotFoundException {
+        AnswerEntity answerEntity = answerService.deleteAnswer(answerId, accessToken);
+        AnswerDeleteResponse answerDeleteResponse = new AnswerDeleteResponse().id(answerEntity.getUuid()).status("ANSWER DELETED");
+        return new ResponseEntity<AnswerDeleteResponse>(answerDeleteResponse, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "answe/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@RequestHeader("authorization") final String authorization,
-                                                                               @PathVariable("questionId") final String questionId)throws AuthorizationFailedException, InvalidQuestionException {
-        UserAuthEntity userAuthEntity = userAuthenticationService.getUser(authorization);
-        QuestionEntity questionEntity = questionService.validateQuestion(questionId);
-
-        ArrayList<AnswerDetailsResponse> list = null;
-        ArrayList<AnswerEntity> rawlist = (ArrayList<AnswerEntity>) answerService.getAllAnswersToQuestion(questionId, userAuthEntity);
-        for(AnswerEntity ans : rawlist) {
-            AnswerDetailsResponse detailsResponse = new AnswerDetailsResponse();
-            detailsResponse.setId(ans.getUuid());
-            detailsResponse.setAnswerContent(ans.getAnswer());
-            detailsResponse.setQuestionContent(questionEntity.getContent());
-            list.add(detailsResponse);
+    @RequestMapping(method = RequestMethod.GET, path = "/answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AnswerDetailsResponse>> getAllAnswersToQuestion(@RequestHeader("authorization") final String accessToken, @PathVariable("questionId") String questionId) throws AuthorizationFailedException, InvalidQuestionException {
+        List<AnswerEntity> answers = answerService.getAllAnswersToQuestion(questionId, accessToken);
+        List<AnswerDetailsResponse> answerDetailsResponses = new ArrayList<>();
+        for (AnswerEntity answerEntity : answers) {
+            AnswerDetailsResponse answerDetailsResponse = new AnswerDetailsResponse();
+            answerDetailsResponse.setId(answerEntity.getUuid());
+            answerDetailsResponse.setQuestionContent(answerEntity.getQuestionEntity().getContent());
+            answerDetailsResponse.setAnswerContent(answerEntity.getAnswer());
+            answerDetailsResponses.add(answerDetailsResponse);
         }
-        return new ResponseEntity<List<AnswerDetailsResponse>>(list, HttpStatus.OK);
+        return new ResponseEntity<List<AnswerDetailsResponse>>(answerDetailsResponses, HttpStatus.OK);
     }
 }

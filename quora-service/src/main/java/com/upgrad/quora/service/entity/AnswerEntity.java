@@ -1,39 +1,36 @@
 package com.upgrad.quora.service.entity;
 
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "answer")
-@NamedQueries(
-        {
-                @NamedQuery(name = "getAnswerFromId" , query = "select q from AnswerEntity q where q.uuid = :uuid"),
-                @NamedQuery(name = "verifyAnsUserToEdit" , query = "select a from AnswerEntity a INNER JOIN UserEntity u on a.userEntity = u.uuid where a.uuid =:euuid and u.uuid = :uuuid"),
-                @NamedQuery(name = "verifyAnsUserToDelete" , query = "select a from AnswerEntity a INNER JOIN UserEntity u on a.userEntity = u.uuid where a.uuid =:duuid and u.uuid = :deuuid"),
-                @NamedQuery(name = "getAllAnswersToQuestion" , query = "select a from AnswerEntity a INNER JOIN QuestionEntity q on a.questionEntity = q.uuid where q.uuid = :uuid")
-        }
-)
-public class AnswerEntity implements Serializable {
+@NamedQueries({@NamedQuery(name = "getAnswerById", query = "select a from AnswerEntity a where a.uuid=:uuid"),
+        @NamedQuery(name = "getAllAnswersToQuestion", query = "select a from AnswerEntity a where a.uuid = :uuid")})
+public class AnswerEntity {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "ans")
-    @NotNull
-    @Size(max = 255)
-    private String answer;
-
     @Column(name = "uuid")
+    @Size(max = 200)
     @NotNull
     private String uuid;
+
+    @Column(name = "ans")
+    @Size(max = 255)
+    @NotNull
+    private String answer;
 
     @Column(name = "date")
     @NotNull
@@ -45,9 +42,9 @@ public class AnswerEntity implements Serializable {
     private UserEntity userEntity;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "question_id")
     private QuestionEntity questionEntity;
-
 
     public Integer getId() {
         return id;
@@ -55,14 +52,6 @@ public class AnswerEntity implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
     }
 
     public String getUuid() {
@@ -73,6 +62,14 @@ public class AnswerEntity implements Serializable {
         this.uuid = uuid;
     }
 
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
     public ZonedDateTime getDate() {
         return date;
     }
@@ -81,20 +78,35 @@ public class AnswerEntity implements Serializable {
         this.date = date;
     }
 
-    public UserEntity getUser() {
+    public UserEntity getUserEntity() {
         return userEntity;
     }
 
-    public void setUser(UserEntity user) {
-        this.userEntity = user;
+    public void setUserEntity(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
-    public QuestionEntity getQuestion() {
+    public QuestionEntity getQuestionEntity() {
         return questionEntity;
     }
 
-    public void setQuestion(QuestionEntity question) {
-        this.questionEntity = question;
+    public void setQuestionEntity(QuestionEntity questionEntity) {
+        this.questionEntity = questionEntity;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return new EqualsBuilder().append(this, obj).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(this).hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }
 
