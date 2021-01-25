@@ -166,6 +166,14 @@ public class QuestionService {
         return questionDao.getAllQuestionsByUser(user);
     }
 
+    public QuestionEntity validateQuestion(String questionId) throws InvalidQuestionException {
+        QuestionEntity questionEntity = questionDao.getQuestionByUuid(questionId);
+        if(questionEntity==null) {
+            throw new InvalidQuestionException("QUES-001","The question entered is invalid");
+        }
+        return questionEntity;
+    }
+
 
 
 }
