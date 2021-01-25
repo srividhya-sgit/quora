@@ -27,4 +27,20 @@ public class AnswerDao {
         }
     }
 
+    public AnswerEntity verifyAnsUserToEdit(String euuid, String uuuid)
+    {
+
+        try {
+            return entityManager.createNamedQuery("verifyAnsUserToEdit", AnswerEntity.class).setParameter("euuid", euuid).setParameter("uuuid",uuuid).getSingleResult();
+        }catch (NoResultException nre)
+        {
+            return null;
+        }
+    }
+
+    public AnswerEntity newAns(AnswerEntity answerEntity)
+    {
+        return entityManager.merge(answerEntity);
+    }
+
 }
