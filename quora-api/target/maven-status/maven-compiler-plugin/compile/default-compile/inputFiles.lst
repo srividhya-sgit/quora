@@ -27,6 +27,7 @@ D:\Trello_Quora_Final\quora\quora-api\src\main\java\com\upgrad\quora\api\QuoraAp
 D:\Trello_Quora_Final\quora\quora-api\target\generated-sources\.\io\swagger\api\ApiOriginFilter.java
 D:\Trello_Quora_Final\quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\AnswerRequest.java
 D:\Trello_Quora_Final\quora\quora-api\target\generated-sources\.\io\swagger\configuration\HomeController.java
+D:\Trello_Quora_Final\quora\quora-api\src\main\java\com\upgrad\quora\api\exception\RestExceptionHandler.java
 D:\Trello_Quora_Final\quora\quora-api\src\main\java\com\upgrad\quora\api\controller\AdminController.java
 D:\Trello_Quora_Final\quora\quora-api\target\generated-sources\.\com\upgrad\quora\api\model\SignoutResponse.java
 D:\Trello_Quora_Final\quora\quora-api\target\generated-sources\.\io\swagger\api\NotFoundException.java

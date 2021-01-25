@@ -49,8 +49,7 @@ public class UserController {
         return new ResponseEntity<SignupUserResponse>(userResponse, HttpStatus.CREATED);
     }
     @RequestMapping(method = RequestMethod.POST, path = "/user/signin", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SigninResponse> signin(
-            @RequestHeader("authorization") final String authorization)
+    public ResponseEntity<SigninResponse> signin(@RequestHeader("authorization") final String authorization)
             throws AuthenticationFailedException {
 
         byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
